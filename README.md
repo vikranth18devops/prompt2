@@ -72,15 +72,75 @@ Below is the complete inventory of Azure native resources provisioned via **Terr
      +--------------------------------------+--------------------------------------+
      |                                      |                                      |
      v 2. Read Secrets                      v 3. Upload/Download Blobs             v 4. Send Queue Messages
-+----+--------------------+          +------+---------------------+         +------+--------------------+
-|    Azure Key Vault      |          | Azure Storage Blob Service |         | Azure Service Bus Queue   |
-| (Key Vault Secrets User)|          | (Blob Data Contributor)    |         | (Service Bus Data Sender) |
 +-------------------------+          +----------------------------+         +---------------------------+
 ```
 
 ---
 
 ## 🏗️ End-to-End System Architecture & Data Flow
+
+### 📊 Visual Cloud Architecture Diagram (Mermaid)
+
+```mermaid
+flowchart TD
+    %% Subgraph 1: Client Browser Layer
+    subgraph ClientLayer ["1. Client Browser Layer (React / Next.js)"]
+        UI_User["🎨 User Studio UI (/)"]
+        UI_Admin["🛡️ Admin Panel (/admin)"]
+        CanvasCompress["🖼️ HTML5 Canvas Compression (1200x1200 max)"]
+    end
+
+    %% Subgraph 2: Ingress & Web Server Layer
+    subgraph AzureWebApp ["2. Azure App Service / Web App (Node 22 Container)"]
+        API_Gen["⚡ POST /api/generate"]
+        API_Auth["🔐 POST /api/auth/login"]
+        API_Health["🩺 GET /api/health (Probes)"]
+        PrismaORM["🗄️ Prisma ORM Client"]
+    end
+
+    %% Subgraph 3: Security & Identity Layer
+    subgraph AzureSecurity ["3. Security & Identity Layer"]
+        ManagedIdentity["🪪 System-Assigned Managed Identity"]
+        KeyVault["🏦 Azure Key Vault (Secrets)"]
+    end
+
+    %% Subgraph 4: Database & Storage Layer
+    subgraph AzureData ["4. Database & Storage Layer"]
+        PG_DB[("🗄️ PostgreSQL Flexible Server (15)")]
+        BlobStorage["🖼️ Azure Storage Account (Blob Storage)"]
+    end
+
+    %% Subgraph 5: Message Bus & AI Transformation Engine
+    subgraph AIEngine ["5. Async Queue & AI Transformation Engine"]
+        ServiceBus["📮 Azure Service Bus Queue (ai-image-jobs)"]
+        OpenAI_API["🤖 OpenAI DALL-E Models (Primary)"]
+        CanvasSynthesizer["✨ Artwork Synthesizer Fallback (SVG Filters)"]
+    end
+
+    %% Flow Connections
+    UI_User -->|1. Drag & Drop Photo| CanvasCompress
+    CanvasCompress -->|2. Compressed Base64| API_Gen
+    UI_Admin -->|JWT Cookie Session| API_Auth
+
+    API_Gen -->|3. Save PENDING Record| PrismaORM
+    PrismaORM --> PG_DB
+    API_Gen -->|4. Push Job Message| ServiceBus
+
+    API_Gen -->|5. Request Managed Token| ManagedIdentity
+    ManagedIdentity -->|6. OAuth Token| KeyVault
+    ManagedIdentity -->|7. Access Permission| BlobStorage
+
+    ServiceBus -->|8. Dispatch Job| OpenAI_API
+    OpenAI_API -- "Success" -->|9a. Output Artwork| BlobStorage
+    OpenAI_API -- "Quota Fail / Error" -->|9b. Fallback Synthesizer| CanvasSynthesizer
+    CanvasSynthesizer -->|10. High-Res SVG Asset| BlobStorage
+
+    BlobStorage -->|11. Return Asset Public URL| API_Gen
+```
+
+---
+
+### 📝 Text Data Flow Summary
 
 ```
 +---------------------------------------------------------------------------------------------------+
