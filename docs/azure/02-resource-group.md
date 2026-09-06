@@ -1,6 +1,6 @@
-# 02 - Azure Resource Group Configuration
+# 02 - Azure Resource Group Configuration & Terraform Script
 
-Documentation for the foundational **Azure Resource Group** powering the AI Image Studio infrastructure.
+Documentation, exact Terraform HCL script, and **example output** for creating the foundational **Azure Resource Group**.
 
 ---
 
@@ -13,24 +13,38 @@ Documentation for the foundational **Azure Resource Group** powering the AI Imag
 
 ---
 
-## 🏷️ Tagging Strategy
-
-All resources provisioned inside this resource group inherit standardized environment tags:
+## 💻 Exact Terraform Code Script
 
 ```hcl
-tags = {
-  Environment = "prod"
-  Project     = "AI Image Studio"
-  ManagedBy   = "Terraform"
+# 1. Azure Resource Group Foundation
+resource "azurerm_resource_group" "rg" {
+  name     = "rg-${var.project_name}-${var.environment}"
+  location = var.location
+
+  tags = {
+    Environment = var.environment
+    Project     = "AI Image Studio"
+    ManagedBy   = "Terraform"
+  }
 }
 ```
 
 ---
 
-## 🧹 Resource Group Lifecycle Management
+## 📋 Example Output (Azure CLI / Portal Inspection)
 
-Deleting the resource group removes all contained Azure resources cleanly:
-
-```bash
-az group delete --name rg-aistudio-prod --yes --no-wait
+```json
+{
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-aistudio-prod",
+  "location": "eastus",
+  "name": "rg-aistudio-prod",
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "tags": {
+    "Environment": "prod",
+    "ManagedBy": "Terraform",
+    "Project": "AI Image Studio"
+  }
+}
 ```

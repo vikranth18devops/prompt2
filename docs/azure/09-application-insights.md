@@ -1,21 +1,35 @@
-# 09 - Azure Application Insights & Telemetry
+# 09 - Azure Application Insights & Log Analytics Terraform Script
 
-Documentation for **Azure Application Insights** tracking application performance, request latency, exceptions, and system metrics.
+Documentation and exact Terraform HCL code script for creating **Log Analytics Workspace** and **Application Insights** telemetry logger.
 
 ---
 
-## 📹 Telemetry Setup
+## 📹 Resource Details
 
-- **Log Analytics Workspace**: `azurerm_log_analytics_workspace.law`
-- **App Insights Resource**: `azurerm_application_insights.appinsights`
-- **Application Type**: `web`
+- **Terraform Resources**: `azurerm_log_analytics_workspace.law` & `azurerm_application_insights.appinsights`
 - **Retention**: `30 days`
+- **Application Type**: `web`
 
 ---
 
-## 📊 Tracked Custom Events ([`lib/azure/telemetry.ts`](../../lib/azure/telemetry.ts))
+## 💻 Exact Terraform Code Script
 
-- `SubmitGenerationJob` — Triggered when a user requests an image generation.
-- `OpenAiGenerationSuccess` — Tracks execution time and OpenAI model used.
-- `JobCompleted` — Tracks completion time and job ID.
-- `trackException` — Logs runtime exceptions and error stack traces.
+```hcl
+# 1. Log Analytics Workspace
+resource "azurerm_log_analytics_workspace" "law" {
+  name                = "law-${var.project_name}-${random_string.suffix.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+}
+
+# 2. Application Insights Telemetry Logger
+resource "azurerm_application_insights" "appinsights" {
+  name                = "appi-${var.project_name}-${var.environment}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  workspace_id        = azurerm_log_analytics_workspace.law.id
+  application_type    = "web"
+}
+```

@@ -1,24 +1,41 @@
-# 05 - Azure Storage Account & Blob Storage
+# 05 - Azure Storage Account & Blob Storage Terraform Script & Output Example
 
-Documentation for **Azure Storage Account** hosting user photo uploads and AI-generated output images.
+Documentation, exact Terraform HCL script, and **example output** for creating **Azure Storage Account** and **Blob Container** (`ai-images`).
 
 ---
 
-## 🖼️ Storage Specifications
+## 🖼️ Resource Details
 
-- **Terraform Resource**: `azurerm_storage_account.sa`
-- **Container Resource**: `azurerm_storage_container.images`
+- **Terraform Resources**: `azurerm_storage_account.sa` & `azurerm_storage_container.images`
 - **Container Name**: `ai-images`
-- **Account Tier**: `Standard`
-- **Replication**: `LRS` (Locally Redundant Storage)
-- **Minimum TLS Version**: `TLS 1.2`
-- **Container Access Type**: `blob` (Public read access for images)
 
 ---
 
-## 📁 Blob Path Partitioning
+## 💻 Exact Terraform Code Script
 
-Images uploaded or synthesized by the platform are saved under partitioned subfolders:
-- `/uploads/{timestamp}-{filename}.png` — User uploaded images.
-- `/generated/{timestamp}-output.png` — AI generated artwork assets.
-- `/prompt-previews/{prompt-id}.png` — Admin prompt preview cards.
+```hcl
+# 1. Storage Account
+resource "azurerm_storage_account" "sa" {
+  name                     = "st${var.project_name}${random_string.suffix.result}"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  min_tls_version          = "TLS1_2"
+}
+
+# 2. Blob Container `ai-images`
+resource "azurerm_storage_container" "images" {
+  name                  = "ai-images"
+  storage_account_id    = azurerm_storage_account.sa.id
+  container_access_type = "blob"
+}
+```
+
+---
+
+## 📋 Example Output Snippet (`terraform output storage_account_name`)
+
+```text
+storage_account_name = "staistudioa89k6d"
+```

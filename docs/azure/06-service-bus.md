@@ -1,32 +1,33 @@
-# 06 - Azure Service Bus Queue Messaging
+# 06 - Azure Service Bus Queue Terraform Script
 
-Documentation for **Azure Service Bus** decoupling generation request submission from worker processing.
+Documentation and exact Terraform HCL code script for creating **Azure Service Bus Namespace** and Queue `ai-generation-jobs`.
 
 ---
 
-## 📮 Service Bus Specifications
+## 📮 Resource Details
 
-- **Terraform Resource**: `azurerm_servicebus_namespace.sb`
-- **Queue Resource**: `azurerm_servicebus_queue.jobs`
+- **Terraform Resources**: `azurerm_servicebus_namespace.sb` & `azurerm_servicebus_queue.jobs`
 - **Queue Name**: `ai-generation-jobs`
 - **Namespace SKU**: `Standard`
-- **Fully Qualified Namespace**: `<namespace>.servicebus.windows.net`
 
 ---
 
-## 📩 Queue Message Payload Format
+## 💻 Exact Terraform Code Script
 
-```json
-{
-  "jobId": "job-1788683226054-89k6dw",
-  "inputImageUrl": "data:image/png;base64,...",
-  "promptTemplate": "A futuristic cyberpunk neon cat portrait",
-  "customPrompt": "golden hour lighting",
-  "parameters": {
-    "guidanceScale": 7.5,
-    "strength": 0.75,
-    "steps": 30
-  },
-  "createdAt": "2026-09-06T16:50:00.000Z"
+```hcl
+# 1. Service Bus Namespace
+resource "azurerm_servicebus_namespace" "sb" {
+  name                = "sb-${var.project_name}-${random_string.suffix.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "Standard"
+}
+
+# 2. Queue `ai-generation-jobs`
+resource "azurerm_servicebus_queue" "jobs" {
+  name         = "ai-generation-jobs"
+  namespace_id = azurerm_servicebus_namespace.sb.id
+
+  enable_partitioning = false
 }
 ```

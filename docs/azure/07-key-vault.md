@@ -1,20 +1,34 @@
-# 07 - Azure Key Vault Secret Management
+# 07 - Azure Key Vault Secret Management Terraform Script & Output Example
 
-Documentation for **Azure Key Vault** encrypting and storing application secrets.
-
----
-
-## 🏦 Vault Specifications
-
-- **Terraform Resource**: `azurerm_key_vault.kv`
-- **Vault Name Pattern**: `kv-${var.project_name}-${random_string.suffix.result}`
-- **SKU Name**: `standard`
-- **Soft Delete Retention**: `7 days`
-- **Authorization Model**: Azure RBAC (`enable_rbac_authorization = true`)
+Documentation, exact Terraform HCL script, and **example output** for creating **Azure Key Vault** and secret records.
 
 ---
 
-## 🔐 Vault Secrets Stored
+## 🏦 Resource Details
 
-1. **`OPENAI-API-KEY`**: Third-party OpenAI API authorization token.
-2. **`JWT-SECRET`**: Secret signing key for Admin HttpOnly authentication tokens.
+- **Terraform Resources**: `azurerm_key_vault.kv` & `azurerm_key_vault_secret.openai_key`, `azurerm_key_vault_secret.jwt_secret`
+
+---
+
+## 💻 Exact Terraform Code Script
+
+```hcl
+# Key Vault (RBAC Enabled)
+resource "azurerm_key_vault" "kv" {
+  name                       = "kv-${var.project_name}-${random_string.suffix.result}"
+  location                   = azurerm_resource_group.rg.location
+  resource_group_name        = azurerm_resource_group.rg.name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  sku_name                   = "standard"
+  soft_delete_retention_days = 7
+  enable_rbac_authorization  = true
+}
+```
+
+---
+
+## 📋 Example Output Snippet (`terraform output key_vault_uri`)
+
+```text
+key_vault_uri = "https://kv-aistudio-a89k6d.vault.azure.net/"
+```
