@@ -6,46 +6,109 @@
 [![Azure Managed Identity](https://img.shields.io/badge/Azure-Managed_Identity-0078D4?style=flat-square&logo=microsoftazure)](https://azure.microsoft.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
 [![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=flat-square&logo=terraform)](https://www.terraform.io/)
-[![Helm](https://img.shields.io/badge/Helm-v3.0-0F1689?style=flat-square&logo=helm)](https://helm.sh/)
+[![Helm](https://img.shields.io/badge/Helm-v4.2-0F1689?style=flat-square&logo=helm)](https://helm.sh/)
 [![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-EF6C00?style=flat-square&logo=argo)](https://argoproj.github.io/cd/)
 
 An enterprise-ready, dual-application AI image generation studio and administrative control platform built with **Next.js App Router**, **TypeScript**, **Tailwind CSS**, **Prisma ORM**, **Azure Native Services**, **Docker**, **Terraform**, **Helm**, **ArgoCD**, and an **Observability Stack (Grafana/Prometheus/Loki/ELK)**.
 
 ---
 
-## ❓ What is this Application?
+## 🧭 Executive Summary & Core Value Proposition
 
-The **AI Image Studio** allows users to upload original photos, select curated prompt presets (e.g. *Cyberpunk Neon*, *Studio Portrait*, *Makoto Anime*, *3D Vinyl Toy*, *Vintage Film*), fine-tune generation parameters (CFG Guidance Scale, Image Influence Strength, Inference Steps), and visually compare the input vs transformed output image using an interactive before/after slider.
-
-Simultaneously, the platform includes a secure **Admin Control Center (`/admin`)** allowing administrators to manage prompt categories, create and version prompt templates with live animated card previews, monitor real-time telemetry metrics, and manage generation queues.
-
----
-
-## 💡 Why Was it Built? (Key Problems Solved)
-
-1. **Payload Size Optimization**: High-resolution uncompressed camera uploads often trigger `413 Payload Too Large` API errors. This app incorporates client-side HTML5 Canvas compression (`1200x1200 max`, `0.85 quality`), reducing base64 payloads to under 500KB without quality loss.
-2. **Zero-Downtime Resilience (Quota Fallback)**: When third-party AI APIs (such as OpenAI DALL-E) return quota limits (`credit_balance_exhausted`) or network outages, the built-in [`lib/aiCanvasGenerator.ts`](lib/aiCanvasGenerator.ts) dynamically embeds the user's uploaded image inside high-resolution 1024x1024 SVG outputs and applies prompt-specific SVG color matrix filters, lighting overlays, and metadata badges.
-3. **Passwordless Cloud Security**: Production deployments on Microsoft Azure utilize **System-Assigned Managed Identity (`DefaultAzureCredential`)** to authenticate with Azure Key Vault, Azure Storage, and Azure Service Bus without hardcoding passwords or secret keys in code.
-4. **Complete Cloud & DevOps Pipeline**: Built-in production infrastructure code including multi-stage Docker containerization, Terraform IaC, Kubernetes Helm Charts, ArgoCD GitOps pipelines, and Grafana/Prometheus/ELK observability dashboards.
+This application was engineered to address real-world production challenges in building AI-powered creative software:
+- **How to deliver high-resolution AI transformations without payload failures**: Solved via client-side HTML5 canvas compression.
+- **How to guarantee 100% platform availability even when external AI model APIs fail**: Solved via an adaptive SVG color-matrix filter artwork synthesizer fallback.
+- **How to securely integrate enterprise cloud services**: Solved using Azure Managed Identity passwordless authentication (`DefaultAzureCredential`).
+- **How to automate cloud deployment, container scaling, and monitoring**: Solved using Terraform IaC, Docker Compose, Helm Charts, ArgoCD GitOps, and Grafana/ELK monitoring stacks.
 
 ---
 
-## ⭐ Core Features
+## 🏗️ End-to-End System Architecture & Data Flow
 
-### 🖌️ User AI Creative Studio (`/`)
-- **Drag-and-Drop Image Uploader**: Canvas compression with real-time file size indicator.
-- **Dynamic Category Tabs & Prompt Selector**: Filter prompts by category with smooth Framer Motion animations.
-- **Fine-Tuning Controls**: Adjust Guidance Scale (CFG: 1.0 - 15.0), Image Influence Strength (0.1 - 0.95), Inference Steps, and custom prompt modifiers.
-- **Processing Visualizer**: Animated status timeline tracking `PENDING` -> `PROCESSING` -> `COMPLETED`.
-- **Interactive Before/After Slider**: Real-time image comparison tool.
-- **Private History Gallery (`/gallery`)**: Private grid gallery of all past generations.
+```
++---------------------------------------------------------------------------------------------------+
+|                                      USER BROWSER / CLIENT UI                                     |
+|                                                                                                   |
+|   1. Upload Photo ----> 2. HTML5 Canvas Compression ----> 3. Select Prompt & Fine-Tune Sliders      |
+|   (Drag & Drop)          (1200x1200 max, 0.85 quality)     (CFG Guidance, Strength, Quality Steps) |
++---------------------------------------------------+-----------------------------------------------+
+                                                    |
+                                                    v POST /api/generate
++---------------------------------------------------------------------------------------------------+
+|                                       NEXT.JS APP ROUTER API                                      |
+|                                                                                                   |
+|   4. Authenticate & Validate Request      5. Create PENDING Job Record      6. Queue Job Message   |
+|   (HttpOnly Cookie / Validation)        (Prisma DB / Mock Store)          (Azure Service Bus Queue)|
++---------------------------------------------------+-----------------------------------------------+
+                                                    |
+                                                    v
++---------------------------------------------------------------------------------------------------+
+|                                 AI TRANSFORMATION DISPATCH ENGINE                                 |
+|                                                                                                   |
+|   7. Try OpenAI Image Models (gpt-image-1, dall-e-3, dall-e-2)                                    |
+|      +-- [SUCCESS] --> Generate High-Res Image URL                                                |
+|      +-- [API QUOTA / FAIL] --> 8. Invoke Adaptive Artwork Synthesizer                             |
+|                                 (Embeds Uploaded Image inside SVG + Prompt Filter Overlays)        |
++---------------------------------------------------+-----------------------------------------------+
+                                                    |
+                                                    v
++---------------------------------------------------------------------------------------------------+
+|                                    PERSISTENCE & REAL-TIME UI                                     |
+|                                                                                                   |
+|   9. Save Output Asset      10. Update Job Status       11. Client Polls /api/generate/[jobId]        |
+|   (Azure Blob Storage)          (COMPLETED, 100%)           (Renders Before/After Comparison Slider)|
++---------------------------------------------------------------------------------------------------+
+```
 
-### 🛡️ Enterprise Admin Control Center (`/admin`)
-- **Secure JWT Session Auth**: HttpOnly secure cookie authentication.
-- **Category Governance (`/admin/categories`)**: CRUD categories, display ordering, and active toggles.
-- **Prompt Management (`/admin/prompts`)**: Filter, search, and manage prompt templates.
-- **Create Prompt with Live Preview (`/admin/prompts/create`)**: Real-time animated card preview updated dynamically as prompt title, description, and styles change.
-- **Generation Monitoring (`/admin/generations`)**: Real-time job status telemetry and execution duration stats.
+---
+
+## 💡 Why Was it Built? (Detailed Breakdown)
+
+### 1. High-Resolution Payload Compression
+- **Problem**: Mobile photos and high-res cameras generate 5MB–25MB image files. Uploading uncompressed base64 payloads over standard REST endpoints causes server memory bloat and `413 Payload Too Large` rejection errors.
+- **Solution**: The [`ImageUploader`](components/user/ImageUploader.tsx) component uses client-side HTML5 canvas rendering to resize images to a maximum bounding rectangle of `1200x1200px` at `0.85` JPEG quality, maintaining original aspect ratio while reducing base64 payloads to under 500KB.
+
+### 2. Resilient Artwork Synthesis Fallback
+- **Problem**: Commercial AI APIs (OpenAI DALL-E) frequently encounter rate limits, billing quota depletion (`credit_balance_exhausted`), or service outages.
+- **Solution**: The [`services/aiProvider.ts`](services/aiProvider.ts) and [`lib/aiCanvasGenerator.ts`](lib/aiCanvasGenerator.ts) services form a zero-downtime fallback pipeline. When OpenAI calls fail, the synthesizer embeds the user's uploaded original image into a high-resolution SVG matrix with custom color filters, lighting overlays, particle highlights, and prompt parameter typography.
+
+### 3. Passwordless Cloud Security (Managed Identity)
+- **Problem**: Storing database passwords, storage keys, and API tokens in environment variables or configuration files creates security vulnerabilities.
+- **Solution**: In production on Azure, all cloud SDKs ([`keyVault.ts`](lib/azure/keyVault.ts), [`blob.ts`](lib/azure/blob.ts), [`serviceBus.ts`](lib/azure/serviceBus.ts)) use `DefaultAzureCredential()`. Azure automatically issues temporary OAuth access tokens via System-Assigned Managed Identity, granting access based on RBAC permissions without stored credentials.
+
+---
+
+## 🎨 User Studio & Admin Control Features
+
+### 🖌️ User Creative Studio (`/`)
+- **Drag-and-Drop Uploader**: Visual drop zone with instant image preview, compression feedback, and reset controls.
+- **Dynamic Category Filter**: Filter prompt presets dynamically by categories (*Cyberpunk*, *Studio Portrait*, *Anime*, *3D Toy*, *Vintage Film*).
+- **Fine-Tuning Controls**:
+  - **Image Influence (Strength)**: Slider from `0.1` (subtle adjustment) to `0.95` (heavy AI transformation).
+  - **Prompt Guidance (CFG)**: Slider from `1.0` to `15.0` determining how strictly the prompt text is enforced.
+  - **Quality Steps**: Slider from `15` to `50` steps.
+  - **Custom Prompt Modifier**: Textarea for adding extra detail (e.g., *"golden hour lighting, cinematic atmosphere"*).
+- **Framer Motion Visualizer**: Animated progress bar tracking job execution lifecycle (`PENDING` -> `PROCESSING` -> `COMPLETED`).
+- **Interactive Before/After Slider**: Draggable handle allowing pixel-by-pixel comparison between the original uploaded image and generated artwork.
+- **Generation History Gallery (`/gallery`)**: Grid view of previous generation history with instant download and metadata details.
+
+### 🛡️ Admin Control Panel (`/admin`)
+- **JWT Session Security**: Password hashing with `bcryptjs` and secure HttpOnly cookie session management (`/middleware.ts`).
+- **Telemetry Dashboard (`components/admin/TelemetryMetrics.tsx`)**: Animated counters for total prompts, active prompts, active categories, total generations, success rate (%), and average duration (ms).
+- **Category Management (`/admin/categories`)**: Create categories, toggle active/inactive status, and set display ordering.
+- **Prompt Management (`/admin/prompts`)**: Filter, search, toggle status, and inspect prompt version histories.
+- **Create Prompt with Live Card Preview (`/admin/prompts/create`)**: Real-time card preview that animates changes as the admin inputs title, description, category, style, and preview image.
+
+---
+
+## 🗄️ Database Schema Model (Prisma)
+
+- **`User`**: Admin and user accounts (`email`, `passwordHash`, `role`).
+- **`PromptCategory`**: Categories (`name`, `description`, `displayOrder`, `status`).
+- **`Prompt`**: Prompts (`title`, `description`, `status`, `categoryId`).
+- **`PromptVersion`**: Immutable version history (`versionNumber`, `promptTemplate`, `negativePrompt`, `previewImageUrl`, `defaultConfig`).
+- **`Generation`**: Generation jobs (`status`, `progress`, `executionTimeMs`, `parameters`).
+- **`GenerationAsset`**: Image files (`type`, `blobPath`, `publicUrl`, `mimeType`, `sizeBytes`).
 
 ---
 
@@ -65,65 +128,63 @@ Follow the step-by-step documentation in the [`docs/`](docs/) directory:
 
 ---
 
-## 💻 How to Run the Application
+## 💻 Quick Start & Running Commands
 
-### Option 1: Local Development Server
-
+### 1. Local Development
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Run local Prisma schema push & database seed
 npx prisma db push
 npx prisma db seed
-
-# 3. Start Next.js development server
 npm run dev
 ```
-
 Open [http://localhost:3000](http://localhost:3000) for User Studio, or [http://localhost:3000/admin](http://localhost:3000/admin) for Admin Panel (Credentials: `admin@azure-ai.com` / `AdminPass123!`).
 
----
-
-### Option 2: Docker Containers (Turnkey Web + PostgreSQL)
-
+### 2. Containerized Execution (Docker Compose)
 ```bash
-# Start full containerized stack (Web + PostgreSQL)
 npm run docker:up
-
-# Tail container logs
 npm run docker:logs
-
-# Stop containers
 npm run docker:down
 ```
 
----
-
-### Option 3: Observability Stack (Grafana / Prometheus / ELK)
-
+### 3. Observability Stack (Grafana / Prometheus / ELK)
 ```bash
-# Start Grafana, Prometheus, Loki, Promtail, and ELK Stack
 npm run monitoring:up
+npm run monitoring:down
 ```
-
-Access Grafana at [http://localhost:3001](http://localhost:3001) (`admin` / `adminpassword123`) and Kibana (ELK) at [http://localhost:5601](http://localhost:5601).
+Grafana dashboard: [http://localhost:3001](http://localhost:3001) (`admin` / `adminpassword123`). Kibana dashboard: [http://localhost:5601](http://localhost:5601).
 
 ---
 
-## 🛠️ Testing & Verification
+## 🛠️ Testing & Build Checks
 
-Run the automated test suite verifying JWT auth, blob storage, AI providers, and end-to-end workflows:
-
+Run automated tests:
 ```bash
 npm test
 ```
 
-Run production build validation:
-
+Run Next.js production compilation:
 ```bash
 npm run build
 ```
+
+---
+
+## ❓ Frequently Asked Questions (FAQ)
+
+<details>
+<summary><b>Q: What happens if I don't have an active OpenAI API key or billing balance?</b></summary>
+<p>The application automatically detects API errors (quota limits or missing keys) and seamlessly falls back to the high-resolution artwork synthesizer. The generated image will embed your uploaded photo transformed into the selected prompt style with custom color filters and HUD overlays.</p>
+</details>
+
+<details>
+<summary><b>Q: How do I change the default Admin credentials?</b></summary>
+<p>Update <code>ADMIN_EMAIL</code> and <code>ADMIN_PASSWORD</code> in your <code>.env.local</code> file (or Azure Key Vault / App Settings in production), then run <code>npx prisma db seed</code>.</p>
+</details>
+
+<details>
+<summary><b>Q: Where are uploaded and generated images stored?</b></summary>
+<p>In production, images are saved directly to Azure Blob Storage under the <code>ai-images</code> container. In local offline development, images are stored as optimized Base64 Data URLs.</p>
+</details>
 
 ---
 
