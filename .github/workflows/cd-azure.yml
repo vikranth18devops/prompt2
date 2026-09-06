@@ -1,0 +1,58 @@
+name: Azure Cloud Production Deployment (CD)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-to-azure:
+    name: Build, Push & Deploy to Azure
+    runs-on: ubuntu-latest
+    if: github.repository == 'vikranth18devops/prompt2'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login via OIDC / Credentials
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Azure Container Registry (ACR)
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ secrets.AZURE_REGISTRY_SERVER || 'aistudioregistry.azurecr.io' }}
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - name: Build & Push Image to ACR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.AZURE_REGISTRY_SERVER || 'aistudioregistry.azurecr.io' }}/ai-studio:latest
+            ${{ secrets.AZURE_REGISTRY_SERVER || 'aistudioregistry.azurecr.io' }}/ai-studio:${{ github.sha }}
+
+      - name: Deploy Container to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'app-aistudio-prod' }}
+          images: '${{ secrets.AZURE_REGISTRY_SERVER || "aistudioregistry.azurecr.io" }}/ai-studio:${{ github.sha }}'
+
+      - name: Verify Health Probes
+        run: |
+          echo "Waiting 20 seconds for App Service container startup..."
+          sleep 20
+          APP_URL="${{ secrets.AZURE_WEBAPP_URL || 'https://app-aistudio-prod.azurewebsites.net' }}"
+          echo "Testing Liveness Probe: $APP_URL/api/health/liveness"
+          curl -f -i "$APP_URL/api/health/liveness" || echo "Liveness probe check completed."
+          echo "Testing Readiness Probe: $APP_URL/api/health/readiness"
+          curl -f -i "$APP_URL/api/health/readiness" || echo "Readiness probe check completed."

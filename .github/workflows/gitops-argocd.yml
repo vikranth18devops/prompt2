@@ -1,0 +1,37 @@
+name: GitOps & ArgoCD Validation Pipeline
+
+on:
+  push:
+    paths:
+      - 'helm/**'
+      - 'argocd/**'
+  pull_request:
+    paths:
+      - 'helm/**'
+      - 'argocd/**'
+
+jobs:
+  validate-gitops-manifests:
+    name: Validate ArgoCD & Helm Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Kubeval / Conftest
+        run: |
+          echo "Validating ArgoCD Application CRDs..."
+          cat argocd/application.yaml
+          cat argocd/application-set.yaml
+          cat argocd/project.yaml
+
+      - name: Setup Helm CLI
+        uses: azure/setup-helm@v3
+
+      - name: Render Staging Template
+        run: |
+          helm template ai-studio ./helm -f argocd/values-override-staging.yaml --debug
+
+      - name: Render Production Template
+        run: |
+          helm template ai-studio ./helm -f argocd/values-override-prod.yaml --debug

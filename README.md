@@ -1,5 +1,6 @@
 # 🎨 AI Image Studio & Enterprise Admin Platform
 
+[![GitHub Actions CI](https://github.com/vikranth18devops/prompt2/actions/workflows/ci.yml/badge.svg)](https://github.com/vikranth18devops/prompt2/actions/workflows/ci.yml)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16.3.4-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22-darkblue?style=flat-square&logo=prisma)](https://www.prisma.io/)
