@@ -1,4 +1,4 @@
-# 04 - Docker Containerization & Local Setup Guide
+# Docker Containerization & Local Setup Guide
 
 Guide for building multi-stage Docker container images and running multi-container stacks locally.
 

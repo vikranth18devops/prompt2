@@ -1,4 +1,4 @@
-# 07 - Helm & Azure Kubernetes Service (AKS) Deployment Guide
+# Helm & Azure Kubernetes Service (AKS) Deployment Guide
 
 Guide for deploying the **AI Image Studio** platform to Kubernetes / AKS using Helm.
 

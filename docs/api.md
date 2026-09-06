@@ -1,10 +1,10 @@
-# 03 - REST API Documentation Specification
+# REST API Documentation & Health Probes
 
 Complete specification for all REST API endpoints implemented in the **AI Image Studio & Admin Platform**.
 
 ---
 
-## 📡 API Endpoint Reference
+## 📡 API Endpoint Reference Table
 
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |

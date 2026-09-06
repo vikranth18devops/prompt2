@@ -1,4 +1,4 @@
-# 08 - GitOps Continuous Deployment Guide (ArgoCD)
+# GitOps Continuous Deployment Guide (ArgoCD)
 
 Guide for managing automated continuous delivery pipelines using ArgoCD.
 

@@ -1,4 +1,4 @@
-# 09 - Enterprise Observability & Monitoring Guide
+# Enterprise Observability & Monitoring Guide
 
 Guide for launching and operating Grafana, Prometheus, Loki, Promtail, and ELK Stack.
 
