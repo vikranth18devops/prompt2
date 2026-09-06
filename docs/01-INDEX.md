@@ -14,6 +14,7 @@ Welcome to the sequential documentation suite for the **AI Image Studio & Admin 
 | **03** | **[03-API_DOCUMENTATION.md](03-API_DOCUMENTATION.md)** | Complete REST API Specifications & Health Probe Specifications |
 | **04** | **[04-DOCKER_GUIDE.md](04-DOCKER_GUIDE.md)** | Multi-Stage Docker Building, Entrypoint Auto-Migrations & Compose Setup |
 | **05** | **[05-AZURE_DEPLOYMENT_GUIDE.md](05-AZURE_DEPLOYMENT_GUIDE.md)** | **Step-by-Step Azure Cloud Production Deployment Guide** |
+| **--** | **[docs/azure/ Index](azure/README.md)** | **Modular Azure Infrastructure Docs** (`01-architecture` to `10-terraform-step-by-step`) |
 | **06** | **[06-TERRAFORM_IAC_GUIDE.md](06-TERRAFORM_IAC_GUIDE.md)** | Terraform IaC Sequence (What Goes 1st, 2nd, 3rd) & Terminal Commands |
 | **07** | **[07-HELM_KUBERNETES_GUIDE.md](07-HELM_KUBERNETES_GUIDE.md)** | Azure Kubernetes Service (AKS) Helm Chart Deployment & Workload Identity |
 | **08** | **[08-GITOPS_ARGOCD_GUIDE.md](08-GITOPS_ARGOCD_GUIDE.md)** | ArgoCD Automated GitOps Continuous Delivery (`Application` & `ApplicationSet`) |
