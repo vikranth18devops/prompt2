@@ -118,7 +118,7 @@ flowchart TD
     end
 
     %% Flow Connections
-    UI_User -->|1. Drag & Drop Photo| CanvasCompress
+    UI_User -->|1. Drag and Drop Photo| CanvasCompress
     CanvasCompress -->|2. Compressed Base64| API_Gen
     UI_Admin -->|JWT Cookie Session| API_Auth
 
@@ -131,8 +131,8 @@ flowchart TD
     ManagedIdentity -->|7. Access Permission| BlobStorage
 
     ServiceBus -->|8. Dispatch Job| OpenAI_API
-    OpenAI_API -- "Success" -->|9a. Output Artwork| BlobStorage
-    OpenAI_API -- "Quota Fail / Error" -->|9b. Fallback Synthesizer| CanvasSynthesizer
+    OpenAI_API -->|9a. Success - Output Artwork| BlobStorage
+    OpenAI_API -->|9b. Quota Fail - Fallback Synthesizer| CanvasSynthesizer
     CanvasSynthesizer -->|10. High-Res SVG Asset| BlobStorage
 
     BlobStorage -->|11. Return Asset Public URL| API_Gen
