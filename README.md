@@ -117,15 +117,18 @@ This application was engineered to address real-world production challenges in b
 
 Follow the step-by-step documentation in the [`docs/`](docs/) directory:
 
-1. **[01 - Master Documentation Index](docs/01-INDEX.md)**: Sitemap & sequential execution guide.
-2. **[02 - System Architecture](docs/02-ARCHITECTURE.md)**: Dual-app design, database schema, and Managed Identity flow.
-3. **[03 - REST API Documentation](docs/03-API_DOCUMENTATION.md)**: Specifications for all endpoints & health probes.
-4. **[04 - Docker Containerization Guide](docs/04-DOCKER_GUIDE.md)**: Multi-stage Docker building & Docker Compose.
-5. **[05 - Step-by-Step Azure Deployment Guide](docs/05-AZURE_DEPLOYMENT_GUIDE.md)**: **Complete Azure Cloud Deployment Process**.
-6. **[06 - Terraform IaC Guide](docs/06-TERRAFORM_IAC_GUIDE.md)**: Azure IaC automation details.
-7. **[07 - Helm & Kubernetes Guide](docs/07-HELM_KUBERNETES_GUIDE.md)**: Deploying to Azure Kubernetes Service (AKS) with Helm.
-8. **[08 - ArgoCD GitOps Guide](docs/08-GITOPS_ARGOCD_GUIDE.md)**: Declarative continuous delivery pipelines.
-9. **[09 - Monitoring & Observability Guide](docs/09-MONITORING_OBSERVABILITY_GUIDE.md)**: Grafana, Prometheus, Loki & ELK Stack guide.
+1. **[01 - Fresher Getting Started Primer](docs/01-GETTING_STARTED.md)**: Beginner Cloud & DevOps introduction with analogies.
+2. **[02 - System Architecture & Data Flow](docs/02-ARCHITECTURE.md)**: Dual-app design, database schema, and data flow.
+3. **[03 - REST API Specifications & Health Probes](docs/03-API_SPECIFICATION.md)**: Specifications for all endpoints & health probes.
+4. **[04 - Local Docker Containerization Guide](docs/04-LOCAL_DOCKER_GUIDE.md)**: Multi-stage Docker building & Docker Compose.
+5. **[05 - Terraform Remote Backend Setup](docs/05-TERRAFORM_REMOTE_STATE.md)**: Azure Blob Storage remote state & state locking.
+6. **[06 - Azure Terraform Cloud Deployment](docs/06-AZURE_TERRAFORM_DEPLOY.md)**: **Complete Azure Cloud Deployment Order**.
+7. **[07 - Passwordless Managed Identity & Key Vault](docs/07-MANAGED_IDENTITY_SECURITY.md)**: Managed Identity OAuth flow & RBAC permissions.
+8. **[08 - PostgreSQL Database Migrations](docs/08-DATABASE_MIGRATIONS.md)**: Schema migrations & seeding default admin data.
+9. **[09 - Azure Container Registry (ACR)](docs/09-CONTAINER_REGISTRY_GUIDE.md)**: Building & pushing images to ACR.
+10. **[10 - Helm & Kubernetes Guide](docs/10-HELM_KUBERNETES_GUIDE.md)**: Deploying to Azure Kubernetes Service (AKS) with Helm.
+11. **[11 - ArgoCD GitOps Continuous Delivery](docs/11-ARGOCD_GITOPS_GUIDE.md)**: Declarative continuous delivery pipelines.
+12. **[12 - Enterprise Observability & Monitoring](docs/12-OBSERVABILITY_MONITORING.md)**: Grafana, Prometheus, Loki & ELK Stack guide.
 
 ---
 
