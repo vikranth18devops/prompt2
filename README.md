@@ -24,6 +24,62 @@ This application was engineered to address real-world production challenges in b
 
 ---
 
+## 🌐 Cloud Hosting Environment & Azure Infrastructure
+
+This application is hosted on **Microsoft Azure Cloud Platform** (Region: `East US`), utilizing cloud-native serverless, managed database, container orchestration, and passwordless zero-trust security services.
+
+### 📍 Hosting Overview & Region Details
+
+| Hosting Property | Cloud Provider Badge | Specification & Details |
+| :--- | :--- | :--- |
+| ☁️ **Cloud Provider** | ![Microsoft Azure](https://img.shields.io/badge/Microsoft_Azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white) | Enterprise Multi-Region Cloud Infrastructure |
+| 📍 **Primary Region** | ![Azure Region](https://img.shields.io/badge/Region-East_US_(eastus)-0078D4?style=for-the-badge&logo=azure-devops&logoColor=white) | High-Availability Data Center Zone |
+| ⚡ **App Domain Hostname** | ![Hosting URL](https://img.shields.io/badge/Endpoint-app--aistudio--prod--eastus.azurewebsites.net-2496ED?style=for-the-badge&logo=nginx&logoColor=white) | SSL/TLS Encrypted Endpoint |
+| 🐳 **Deployment Mode** | ![Docker Container](https://img.shields.io/badge/Runtime-Docker_Container_(Node_22_Alpine)-2496ED?style=for-the-badge&logo=docker&logoColor=white) | Multi-Stage Docker Container |
+| 🪪 **Security Model** | ![Managed Identity](https://img.shields.io/badge/Security-Passwordless_Managed_Identity-0078D4?style=for-the-badge&logo=microsoft&logoColor=white) | System-Assigned Identity (`DefaultAzureCredential`) |
+
+---
+
+### ☁️ Azure Cloud Resources & Architecture Stack
+
+Below is the complete inventory of Azure native resources provisioned via **Terraform Infrastructure-as-Code (IaC)**:
+
+| Icon | Azure Cloud Resource | Azure Resource Name Pattern | Resource Tier / SKU | Role & Function in Application |
+| :---: | :--- | :--- | :--- | :--- |
+| 📁 | **Azure Resource Group** | `rg-aistudio-prod-eastus` | Standard Resource Container | Logical grouping and RBAC access boundary for all application assets. |
+| 🖥️ | **App Service Plan & Web App** | `app-aistudio-prod-eastus` | `B1` (Basic Linux Container) | Hosts Next.js App Router server, API endpoints, background worker, and health probes. |
+| 🗄️ | **PostgreSQL Flexible Server** | `psql-aistudio-prod-eastus` | `B_Standard_B1ms` (PostgreSQL 15) | Stores users, prompt categories, prompt templates, version histories, and generation logs. |
+| 🖼️ | **Storage Account & Blob Storage** | `staistudioprodeastus` | `Standard_LRS` (Blob Service) | Stores uploaded original images (`/uploads/`) and AI-generated artwork assets (`/generated/`). |
+| 📮 | **Service Bus Namespace & Queue** | `sb-aistudio-prod-eastus` | `Standard` Tier | Message queue (`ai-image-jobs`) decoupling frontend job dispatching from AI image processing. |
+| 🏦 | **Azure Key Vault** | `kv-aistudio-prod-eastus` | Standard Hardware Encryption | Securely stores sensitive API keys (`OpenAI-Key`), database URLs, and JWT secrets. |
+| 📹 | **Application Insights** | `appi-aistudio-prod-eastus` | Node.js Telemetry SDK | Monitors HTTP request rates, response latency, exceptions, DB query times, and memory usage. |
+| 🪪 | **Managed Identity (Entra ID)** | `SystemAssigned` (Web App ID) | OAuth2 Passwordless Security | Grants Web App direct RBAC access (`Key Vault Secrets User`, `Storage Blob Data Contributor`). |
+| 📦 | **Container Registry (ACR)** | `aistudioacr.azurecr.io` | Basic Tier | Private registry for storing production Docker container images (`ai-studio:latest`). |
+| ⛵ | **Azure Kubernetes Service (AKS)** | `aks-aistudio-prod` | Standard AKS Cluster | Container orchestration platform running Helm charts and ArgoCD GitOps pipelines. |
+
+---
+
+### 🛡️ Passwordless Security & RBAC Matrix
+
+```
+                          +-----------------------------------+
+                          |     Azure App Service Web App     |
+                          |  (System-Assigned Identity Enabled)|
+                          +-----------------+-----------------+
+                                            |
+                                            | 1. Auto-issues temporary OAuth2 token
+                                            v
+     +--------------------------------------+--------------------------------------+
+     |                                      |                                      |
+     v 2. Read Secrets                      v 3. Upload/Download Blobs             v 4. Send Queue Messages
++----+--------------------+          +------+---------------------+         +------+--------------------+
+|    Azure Key Vault      |          | Azure Storage Blob Service |         | Azure Service Bus Queue   |
+| (Key Vault Secrets User)|          | (Blob Data Contributor)    |         | (Service Bus Data Sender) |
++-------------------------+          +----------------------------+         +---------------------------+
+```
+
+---
+
 ## 🏗️ End-to-End System Architecture & Data Flow
 
 ```
