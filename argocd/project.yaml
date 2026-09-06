@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ai-studio-project
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: ArgoCD Project for AI Image Studio Platform
+  sourceRepos:
+    - 'https://github.com/your-org/ai-studio.git'
+  destinations:
+    - namespace: 'ai-studio*'
+      server: 'https://kubernetes.default.svc'
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: networking.k8s.io
+      kind: IngressClass
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  roles:
+    - name: developer
+      description: Developer access for manual sync
+      policies:
+        - p, proj:ai-studio-project:developer, applications, sync, ai-studio-project/*, allow
+        - p, proj:ai-studio-project:developer, applications, get, ai-studio-project/*, allow

@@ -36,6 +36,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# cookies & local test files
+cookies.txt
+
+# terraform state
+*.tfstate
+*.tfstate.backup
+.terraform/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

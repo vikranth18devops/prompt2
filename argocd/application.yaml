@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-studio-prod
+  namespace: argocd
+  labels:
+    env: production
+    app: ai-studio
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: ai-studio-project
+  source:
+    repoURL: 'https://github.com/your-org/ai-studio.git'
+    targetRevision: HEAD
+    path: helm
+    helm:
+      valueFiles:
+        - ../argocd/values-override-prod.yaml
+      parameters:
+        - name: image.tag
+          value: "latest"
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: ai-studio
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

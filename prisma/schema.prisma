@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum PromptStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum CategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum GenerationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AssetType {
+  INPUT
+  OUTPUT
+  PREVIEW
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  name         String
+  role         UserRole     @default(USER)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  generations  Generation[]
+
+  @@index([email])
+}
+
+model PromptCategory {
+  id           String         @id @default(uuid())
+  name         String
+  slug         String         @unique
+  description  String?
+  status       CategoryStatus @default(ACTIVE)
+  displayOrder Int            @default(0)
+  icon         String         @default("Sparkles")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  prompts      Prompt[]
+
+  @@index([slug])
+  @@index([status, displayOrder])
+}
+
+model Prompt {
+  id         String          @id @default(uuid())
+  title      String
+  slug       String          @unique
+  status     PromptStatus    @default(ACTIVE)
+  categoryId String
+  category   PromptCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  versions   PromptVersion[]
+
+  @@index([slug])
+  @@index([categoryId, status])
+}
+
+model PromptVersion {
+  id              String       @id @default(uuid())
+  promptId        String
+  prompt          Prompt       @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  versionNumber   Int          @default(1)
+  promptTemplate  String
+  negativePrompt  String?
+  previewImageUrl String
+  defaultConfig   Json         // { guidanceScale, strength, steps, style }
+  createdAt       DateTime     @default(now())
+  generations     Generation[]
+
+  @@unique([promptId, versionNumber])
+  @@index([promptId])
+}
+
+model Generation {
+  id              String           @id @default(uuid())
+  userId          String?
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  promptVersionId String
+  promptVersion   PromptVersion    @relation(fields: [promptVersionId], references: [id], onDelete: Cascade)
+  status          GenerationStatus @default(PENDING)
+  progress        Int              @default(0)
+  parameters      Json             // applied parameters
+  errorMessage    String?
+  executionTimeMs Int?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  assets          GenerationAsset[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([promptVersionId])
+}
+
+model GenerationAsset {
+  id           String     @id @default(uuid())
+  generationId String
+  generation   Generation @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  type         AssetType  @default(INPUT)
+  blobPath     String     // /uploads/ or /generated/
+  publicUrl    String
+  mimeType     String
+  sizeBytes    Int
+  createdAt    DateTime   @default(now())
+
+  @@index([generationId])
+}

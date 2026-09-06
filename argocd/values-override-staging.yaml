@@ -1,0 +1,27 @@
+replicaCount: 2
+
+image:
+  repository: aistudio.azurecr.io/ai-studio
+  tag: "staging-latest"
+
+config:
+  nodeEnv: "staging"
+  azureKeyVaultUrl: "https://kv-aistudio-staging.vault.azure.net/"
+  azureStorageAccountName: "staistudiostaging"
+  azureServiceBusNamespace: "sb-aistudio-staging.servicebus.windows.net"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: staging.ai-studio.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

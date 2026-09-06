@@ -1,0 +1,115 @@
+# Default values for ai-studio Helm Chart.
+
+replicaCount: 2
+
+image:
+  repository: aistudio.azurecr.io/ai-studio
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account (e.g. Azure Workload Identity)
+  annotations:
+    azure.workload.identity/client-id: "00000000-0000-0000-0000-000000000000"
+  # The name of the service account to use.
+  name: "ai-studio-sa"
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: ai-studio.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: ai-studio-tls
+      hosts:
+        - ai-studio.example.com
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+livenessProbe:
+  httpGet:
+    path: /api/health/liveness
+    port: 3000
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /api/health/readiness
+    port: 3000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Non-sensitive application configuration
+config:
+  nodeEnv: "production"
+  port: "3000"
+  azureKeyVaultUrl: "https://kv-aistudio-prod.vault.azure.net/"
+  azureStorageAccountName: "staistudioprod"
+  azureStorageContainerName: "ai-images"
+  azureServiceBusNamespace: "sb-aistudio-prod.servicebus.windows.net"
+  azureServiceBusQueueName: "ai-generation-jobs"
+  appInsightsConnectionString: ""
+
+# Sensitive application secrets
+secrets:
+  databaseUrl: "postgresql://pgadmin:P%40ssw0rd%21Azure2026AI@psql-aistudio-prod.postgres.database.azure.com:5432/ai_platform?sslmode=require"
+  adminEmail: "admin@azure-ai.com"
+  adminPassword: "AdminPass123!"
+  jwtSecret: "super-secret-admin-key-azure-ai-2026"
+  openaiApiKey: ""

@@ -6,15 +6,40 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npx tsx tests/run-tests.ts",
+    "postinstall": "prisma skills sync || exit 0",
+    "docker:build": "docker build -f docker/Dockerfile -t ai-studio:latest .",
+    "docker:up": "docker-compose -f docker/docker-compose.yml up -d --build",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker-compose -f docker/docker-compose.yml logs -f",
+    "monitoring:up": "docker-compose -f monitoring/docker-compose.monitoring.yml up -d",
+    "monitoring:down": "docker-compose -f monitoring/docker-compose.monitoring.yml down"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@azure/identity": "^4.13.2",
+    "@azure/keyvault-secrets": "^4.11.2",
+    "@azure/service-bus": "^7.9.5",
+    "@azure/storage-blob": "^12.33.0",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "framer-motion": "^13.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.41.0",
     "next": "16.3.4",
+    "prisma": "^5.22.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

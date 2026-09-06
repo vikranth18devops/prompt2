@@ -1,0 +1,17 @@
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.env
+.env.local
+.env*.local
+.next
+node_modules
+npm-debug.log
+README.md
+implementation_plan.md
+walkthrough.md
+tests
+azure
+terraform
+helm

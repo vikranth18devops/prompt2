@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ai-studio-appset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - env: staging
+            cluster: https://kubernetes.default.svc
+            revision: main
+            replicaCount: "2"
+          - env: prod
+            cluster: https://kubernetes.default.svc
+            revision: main
+            replicaCount: "3"
+  template:
+    metadata:
+      name: 'ai-studio-{{env}}'
+      labels:
+        env: '{{env}}'
+    spec:
+      project: ai-studio-project
+      source:
+        repoURL: 'https://github.com/your-org/ai-studio.git'
+        targetRevision: '{{revision}}'
+        path: helm
+        helm:
+          valueFiles:
+            - '../argocd/values-override-{{env}}.yaml'
+          parameters:
+            - name: replicaCount
+              value: '{{replicaCount}}'
+      destination:
+        server: '{{cluster}}'
+        namespace: 'ai-studio-{{env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ai-studio.fullname" . }}-config
+  labels:
+    {{- include "ai-studio.labels" . | nindent 4 }}
+data:
+  NODE_ENV: {{ .Values.config.nodeEnv | quote }}
+  PORT: {{ .Values.config.port | quote }}
+  AZURE_KEYVAULT_URL: {{ .Values.config.azureKeyVaultUrl | quote }}
+  AZURE_STORAGE_ACCOUNT_NAME: {{ .Values.config.azureStorageAccountName | quote }}
+  AZURE_STORAGE_CONTAINER_NAME: {{ .Values.config.azureStorageContainerName | quote }}
+  AZURE_SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE: {{ .Values.config.azureServiceBusNamespace | quote }}
+  AZURE_SERVICE_BUS_QUEUE_NAME: {{ .Values.config.azureServiceBusQueueName | quote }}
+  APPLICATIONINSIGHTS_CONNECTION_STRING: {{ .Values.config.appInsightsConnectionString | quote }}

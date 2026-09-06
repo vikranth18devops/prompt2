@@ -1,0 +1,29 @@
+groups:
+  - name: ai_studio_alerts
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been unreachable for more than 1 minute."
+
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes{container_label_com_docker_compose_service="web"} > 900000000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory utilization on Web Container"
+          description: "Web container memory usage exceeded 900MB for 2 minutes."
+
+      - alert: HighCpuUsage
+        expr: rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service="web"}[5m]) * 100 > 85
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU utilization on Web Container"
+          description: "Web container CPU usage exceeded 85% for 3 minutes."

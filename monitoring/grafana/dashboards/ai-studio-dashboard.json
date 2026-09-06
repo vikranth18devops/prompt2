@@ -1,0 +1,42 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Application Uptime (Seconds)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "targets": [{ "expr": "up", "refId": "A" }]
+    },
+    {
+      "title": "Web Container Memory Usage (MB)",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+      "targets": [{ "expr": "container_memory_usage_bytes{container_label_com_docker_compose_service=\"web\"} / 1024 / 1024", "refId": "A" }]
+    },
+    {
+      "title": "Web Container CPU Usage (%)",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+      "targets": [{ "expr": "rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service=\"web\"}[1m]) * 100", "refId": "A" }]
+    },
+    {
+      "title": "Application Health Log Stream (Loki)",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "targets": [{ "expr": "{job=\"docker\"}", "refId": "A" }]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["ai-studio", "production", "monitoring"],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "AI Image Studio Production Dashboard",
+  "uid": "ai-studio-prod-dashboard"
+}

@@ -1,0 +1,32 @@
+replicaCount: 3
+
+image:
+  repository: aistudio.azurecr.io/ai-studio
+  tag: "prod-latest"
+
+config:
+  nodeEnv: "production"
+  azureKeyVaultUrl: "https://kv-aistudio-prod.vault.azure.net/"
+  azureStorageAccountName: "staistudioprod"
+  azureServiceBusNamespace: "sb-aistudio-prod.servicebus.windows.net"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: ai-studio.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10

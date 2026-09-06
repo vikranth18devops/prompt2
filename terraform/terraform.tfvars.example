@@ -1,0 +1,8 @@
+environment       = "prod"
+location          = "eastus"
+project_name      = "aistudio"
+pg_admin_user     = "pgadmin"
+pg_admin_password = "P@ssw0rd!Azure2026AI"
+app_service_sku   = "B1"
+openai_api_key    = "sk-proj-your-openai-key"
+jwt_secret        = "super-secret-admin-key-azure-ai-2026"

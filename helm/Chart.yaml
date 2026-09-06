@@ -1,0 +1,16 @@
+apiVersion: v2
+name: ai-studio
+description: Production Helm Chart for AI Image Studio & Admin Platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - nextjs
+  - azure
+  - ai-studio
+  - postgresql
+  - redis
+  - helm
+maintainers:
+  - name: Azure AI Team
+    email: admin@azure-ai.com
