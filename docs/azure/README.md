@@ -17,4 +17,5 @@ Modular documentation detailing each Azure service, security role, database, con
 | **07** | **[07-key-vault.md](07-key-vault.md)** | Azure Key Vault secret management & soft-delete settings |
 | **08** | **[08-managed-identity.md](08-managed-identity.md)** | Passwordless System-Assigned Managed Identity & RBAC roles |
 | **09** | **[09-application-insights.md](09-application-insights.md)** | Application Insights monitoring, telemetry & custom events |
-| **10** | **[10-terraform-step-by-step.md](10-terraform-step-by-step.md)** | Terminal execution commands for Terraform IaC deployment |
+| **10** | **[10-terraform-step-by-step.md](10-terraform-step-by-step.md)** | Terminal execution commands & example output snippets |
+| **11** | **[11-terraform-remote-state.md](11-terraform-remote-state.md)** | **Azure Blob Remote Backend State File Management & State Locking** |
